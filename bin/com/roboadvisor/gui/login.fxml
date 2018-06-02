@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="600.0" maxWidth="1000.0" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #20120F;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.roboadvisor.gui.Login">
+  <children>
+    <ImageView fitHeight="596.0" fitWidth="1000.0" layoutY="2.0" opacity="0.56" pickOnBounds="true">
+      <image>
+        <Image url="@/image/image.jpg" />
+      </image>
+    </ImageView>
+    <AnchorPane layoutX="599.0" layoutY="147.0" prefHeight="332.0" prefWidth="344.0" style="-fx-background-color: #3f3f3f;">
+      <children>
+        <TextField fx:id="email" layoutX="36.0" layoutY="107.0" prefHeight="22.0" prefWidth="274.0" promptText="E-MAIL ADDRESS" style="-fx-background-color: #d1cccc; -fx-border-color: #FFFFFF; -fx-border-radius: 5px; -fx-opacity: 0.7;" />
+        <Button layoutX="35.0" layoutY="222.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="274.0" style="-fx-background-color: #ade6bc;" text="Sign In">
+          <font>
+            <Font size="17.0" fx:id="x3" />
+          </font>
+          <textFill>
+            <Color blue="0.247" green="0.247" red="0.247" fx:id="x1" />
+          </textFill>
+        </Button>
+        <Label layoutX="113.0" layoutY="282.0" opacity="0.82" prefHeight="21.0" prefWidth="121.0" text="Forgot Password?" textAlignment="CENTER" textFill="#b9b9b9" underline="true">
+          <font>
+            <Font size="14.0" />
+          </font>
+        </Label>
+        <PasswordField fx:id="password" layoutX="36.0" layoutY="150.0" prefHeight="27.0" prefWidth="274.0" promptText="PASSWORD" style="-fx-background-color: #d1cccc; -fx-border-color: #FFFFFF; -fx-border-radius: 5px; -fx-opacity: 0.7;" />
+        <AnchorPane layoutY="-3.0" prefHeight="64.0" prefWidth="344.0" style="-fx-background-color: #ade6bc;">
+          <children>
+            <Label layoutX="135.0" layoutY="6.0" prefHeight="57.0" prefWidth="75.0" text="Login" textFill="$x1">
+              <font>
+                <Font size="24.0" />
+              </font>
+            </Label>
+          </children>
+        </AnchorPane>
+      </children>
+    </AnchorPane>
+    <Label layoutX="130.0" layoutY="163.0" opacity="0.96" prefHeight="80.0" prefWidth="381.0" text="Robo Pesos" textAlignment="CENTER" textFill="#fff6f6">
+      <font>
+        <Font size="46.0" />
+      </font>
+    </Label>
+  </children>
+</AnchorPane>
