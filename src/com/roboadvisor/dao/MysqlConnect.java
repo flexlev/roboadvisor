@@ -54,4 +54,12 @@ public class MysqlConnect {
 	            }
 	        }
 	    }
+	    
+	    public Connection getConnection() {
+			return connection;
+		}
+
+		public void setConnection(Connection connection) {
+			this.connection = connection;
+		}
 }
