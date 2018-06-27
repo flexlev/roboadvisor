@@ -62,7 +62,7 @@ public class PortfolioAllocation {
 		//Populating time series
 		populateStocks(beg, end);
 		
-		Portfolio portfolio = new Portfolio(stockAssets);
+		Portfolio portfolio = new Portfolio(stockAssets,1);
 		portfolio.populateSeries();
 		
 //		portfolio.printInfo();

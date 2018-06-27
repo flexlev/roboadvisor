@@ -38,13 +38,15 @@ public class Portfolio {
 	private Cobyla cobyla;
 	
 	private ArrayList<Double> monthlyReturns;
+	private int varianceTolerance;
 	
-	public Portfolio(ArrayList<Stock> stocks) {
+	public Portfolio(ArrayList<Stock> stocks, int varianceTolerance) {
 		this.periodPortfolio = new ArrayList<PeriodPortfolio>();
 		this.elligibleStockAssetsCAD = new ArrayList<Stock>();
 		this.elligibleStockAssetsUS = new ArrayList<Stock>();
 		this.mandatoryStockAssets = new ArrayList<Stock>();
 		
+		this.varianceTolerance = varianceTolerance;
 		//initialize hioldings
 		for(int i = 0; i< stocks.size(); i++) {
 			if(stocks.get(i).getSector().contains("Fixed Income ETF"))
@@ -113,13 +115,24 @@ public class Portfolio {
 		//best CAD
 		StockPair[] performance = new StockPair[inventory.size()];
 		for(int i =0; i< inventory.size(); i++) {
-			performance[i] = new StockPair(inventory.get(i),
-											getPreviousPeriodPerformanceStock(inventory.get(i), beg, end));
+			performance[i] =new StockPair(inventory.get(i),
+											getPreviousPeriodPerformanceStock(inventory.get(i), beg, end),
+											getStockVariance(inventory.get(i), beg, end));
 		}
 		
-		//get best CAD % performer
+		//Remove the heavy variance 1/3 2/3 or none
+		
+		//get best CAD % performer eliminate the Heavy variance
 		Arrays.sort(performance);
-		//Threshold by Industry
+		performance = eliminateVariance(performance,this.varianceTolerance);
+		
+		//Set variance Sorted
+		for(int i = 0; i < performance.length; i++) {
+			performance[i].varianceSorted = true;
+		}
+		
+		//Set Return
+		Arrays.sort(performance);
 		
 		return getTopStocks(performance,3);
 	}
@@ -134,7 +147,7 @@ public class Portfolio {
 		
 		for(int j = 0; j <sectors.size(); j++) {
 			for(int i = 0; i< performance.length; i++) {
-				if((sectors.get(performance[i].stock.getSector()) < n) && (!tops.contains(performance[i].stock)) && (performance[i].stock.getMarketCap() > 1000000)) {
+				if((sectors.get(performance[i].stock.getSector()) < n) && (!tops.contains(performance[i].stock))) {
 					tops.add(performance[i].stock);
 					sectors.merge(performance[i].stock.getSector(), 1, Integer::sum);
 				}
@@ -143,7 +156,35 @@ public class Portfolio {
 			
 		return tops;
 	}
+	
+	private StockPair[] eliminateVariance(StockPair[] performance, int levelSelection) {
+		
+		StockPair[] tops = new StockPair[(int)performance.length*levelSelection/3];
 
+		for(int i = 0; i< (int)performance.length*levelSelection/3 ; i++) {
+			tops[i] = performance[i];
+		}
+		
+		return tops;
+	}
+
+	private double getStockVariance(Stock stock, Date beg, Date end) {
+		
+		double mean = 0;
+		
+		for(int i = 0 ; i< stock.getWeeklyLogReturn().length; i++) {
+			mean += stock.getWeeklyLogReturn()[i];
+		}
+		mean = mean/stock.getWeeklyLogReturn().length;
+		
+		double var = 0;
+        for(int i = 0 ; i< stock.getWeeklyLogReturn().length; i++) {
+        	var += (stock.getWeeklyLogReturn()[i]-mean)*(stock.getWeeklyLogReturn()[i]-mean);
+        }
+        var = var/(stock.getWeeklyLogReturn().length-1);
+		
+        return var;
+	}
 	//by average performance
 	private Double getPreviousPeriodPerformanceStock(Stock stock, Date beg, Date end) {
 		int indexBeg = getArrayIndex(stock.getDateTS(), beg);

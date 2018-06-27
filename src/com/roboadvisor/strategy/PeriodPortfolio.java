@@ -146,7 +146,7 @@ public class PeriodPortfolio {
 		}
 		
 		calcfc.setCov(this.cov);
-		this.weights = Cobyla.FindMinimum(calcfc, this.stocks.size(), this.stocks.size()+1, xO, 100000, 100000, 1, 500000);
+		this.weights = Cobyla.FindMinimum(calcfc, this.stocks.size(), this.stocks.size()+1, xO, 100000, 10000, 1, 10000);
 //		System.out.println(Arrays.toString(this.weights.toArray()));
 		return setValueThroughDates(initialValue);
 	}
@@ -171,9 +171,9 @@ public class PeriodPortfolio {
 				index = Arrays.asList(stocks.get(j).getDateTS()).indexOf(dates.get(i));
 				//Factor Transaction Cost
 				if(i==0)
-					stockValue.add(stocks.get(j).getAdjustedCloseTS()[index]*1.01);
+					stockValue.add(stocks.get(j).getAdjustedCloseTS()[index]*1.005);
 				else if (i == (dates.size()-1))
-					stockValue.add(stocks.get(j).getAdjustedCloseTS()[index]*0.99);
+					stockValue.add(stocks.get(j).getAdjustedCloseTS()[index]*0.995);
 				else	
 					stockValue.add(stocks.get(j).getAdjustedCloseTS()[index]);
 				if(i ==0)
