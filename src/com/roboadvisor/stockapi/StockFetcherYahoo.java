@@ -39,12 +39,15 @@ public class StockFetcherYahoo {
 
 	HttpClient client = HttpClientBuilder.create().build();
     HttpClientContext context = HttpClientContext.create();
-
-    public StockFetcherYahoo() {
+    
+    private static Stock exchangeRate;
+    
+    public StockFetcherYahoo(Date beg, Date end) {
         CookieStore cookieStore = new BasicCookieStore();
         client = HttpClientBuilder.create().build();
         context = HttpClientContext.create();
         context.setCookieStore(cookieStore);
+        exchangeRate = getExchangeRate(beg, end);
     }
 
     public String getPage(String symbol) {
@@ -147,6 +150,7 @@ public class StockFetcherYahoo {
 		BufferedReader br;
 		List<Double> prices= new ArrayList<Double>();
 		List<Date> dates= new ArrayList<Date>();
+		double exchangeRate = 1;
 		
 		br = new BufferedReader(new FileReader(filename));
 		Stream<String> lines = br.lines();
@@ -158,7 +162,9 @@ public class StockFetcherYahoo {
 			String[] split = stringArray[i].split(",");
 			temp = createDate(split[0]);
 			if(temp.after(beg) && temp.before(end)) {
-				prices.add(Double.parseDouble(split[5]));
+				if(ticker.getCountry() == "US")
+					exchangeRate = getExchangeRate(temp.getMonth(), temp.getYear());
+				prices.add(Double.parseDouble(split[5])*exchangeRate);
 				dates.add(temp);
 			}
 		}
@@ -175,29 +181,42 @@ public class StockFetcherYahoo {
 		return new Stock(ticker, pricesArray, datesArray);
 	}
     
-    private static Date createDate(String date) {
+    @SuppressWarnings("deprecation")
+	private static double getExchangeRate(int month, int year) {
+    	double exRate = 0;
+    	for(int i =0 ; i< exchangeRate.getDateTS().length ; i++) {
+    		if(exchangeRate.getDateTS()[i].getMonth() == month && exchangeRate.getDateTS()[i].getYear() == year) {
+    			exRate = exchangeRate.getAdjustedCloseTS()[i];
+    		}
+    	}
+		return exRate;
+	}
+
+	private static Date createDate(String date) {
 	     try {
-	         return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+	    	 if (date.contains("-"))
+	         	return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+	    	 else
+	 			return new SimpleDateFormat("dd/MM/yyyy").parse(date);
 	     } catch (ParseException e) {
-	    	 e.printStackTrace();
-	         return null;
+	        return null;
 	     }
 	}
     
-    public static void main (String[] args) {
-    	String[] stockAssets = new String[]{"AAPL","MSFT"};
-    	StockFetcherYahoo c = new StockFetcherYahoo();
-        for (String symbol: stockAssets) {
-            String crumb = c.getCrumb(symbol);
-            if (crumb != null && !crumb.isEmpty()) {
-                System.out.println(String.format("Downloading data to %s", symbol));
-                System.out.println("Crumb: " + crumb);
-                c.downloadData(symbol, 0, System.currentTimeMillis(), crumb);
-            } else {
-                System.out.println(String.format("Error retreiving data for %s", symbol));
-            }
-        }
-    }
+//    public static void main (String[] args) {
+//    	String[] stockAssets = new String[]{"AAPL","MSFT"};
+//    	StockFetcherYahoo c = new StockFetcherYahoo();
+//        for (String symbol: stockAssets) {
+//            String crumb = c.getCrumb(symbol);
+//            if (crumb != null && !crumb.isEmpty()) {
+//                System.out.println(String.format("Downloading data to %s", symbol));
+//                System.out.println("Crumb: " + crumb);
+//                c.downloadData(symbol, 0, System.currentTimeMillis(), crumb);
+//            } else {
+//                System.out.println(String.format("Error retreiving data for %s", symbol));
+//            }
+//        }
+//    }
 
     public ArrayList<Stock> getAllTickers(){
     	ArrayList<Stock> stocks = new ArrayList<Stock>();
@@ -265,10 +284,11 @@ public class StockFetcherYahoo {
 			Stream<String> data = lines.skip(0);
 			String[] stringArray = data.toArray(String[]::new);
 			
-//			for(int i =0; i<stringArray.length ;i++ ) {
-			for(int i =0; i<100 ;i++ ) {
-				String[] split = stringArray[i].split(",");;
-				stocks.add(new Stock(split[1] + ".TO", split[2], "", split[3], "CAD"));
+			for(int i =0; i<stringArray.length ;i++ ) {
+				String[] split = stringArray[i].split(",");
+				try {
+					stocks.add(new Stock(split[1] + ".TO", split[2], "", split[3], "CAD"));
+				} catch (ArrayIndexOutOfBoundsException e) {}
 			}
 			
 		} catch (FileNotFoundException e) {
@@ -290,8 +310,7 @@ public class StockFetcherYahoo {
 			Stream<String> data = lines.skip(1);
 			String[] stringArray = data.toArray(String[]::new);
 			
-//			for(int i =0; i<stringArray.length ;i++ ) {
-			for(int i =0; i<100 ;i++ ) {
+			for(int i =0; i<stringArray.length ;i++ ) {
 				String[] split = stringArray[i].split(",");
 				stocks.add(new Stock(split[0], split[5], split[6], split[4], "US"));
 			}
@@ -301,6 +320,42 @@ public class StockFetcherYahoo {
 		}
 		
 		return stocks;
+	}
+
+	public Stock getExchangeRate(Date beg, Date end) {
+		String asset = "assets/USDCAD.csv";
+		BufferedReader br;
+		
+		ArrayList<Double> prices= new ArrayList<Double>();
+		ArrayList<Date> dates= new ArrayList<Date>();
+
+		Date temp = null;
+		
+		try {
+			br = new BufferedReader(new FileReader(asset));
+			Stream<String> lines = br.lines();
+			Stream<String> data = lines.skip(1);
+			String[] stringArray = data.toArray(String[]::new);
+			
+			for(int i =0; i<stringArray.length ;i++ ) {
+				String[] split = stringArray[i].split(",");
+				temp = createDate(split[0]);
+				if(temp.after(beg) && temp.before(end)) {
+					prices.add(Double.parseDouble(split[1]));
+					dates.add(temp);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		Date[] datesArray = new Date[dates.size()];
+		double[] pricesArray = null;
+		
+		datesArray = dates.toArray(datesArray);
+		pricesArray = ArrayUtils.toPrimitive(prices.toArray(new Double[prices.size()]));
+		
+		return new Stock("USDCAD", pricesArray, datesArray);
 	}
     
 }

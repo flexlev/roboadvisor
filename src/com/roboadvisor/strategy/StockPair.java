@@ -6,10 +6,16 @@ public class StockPair implements Comparable<StockPair>{
 
 	public final Stock stock;
     public final double value;
+    public double weight;
 
-    public StockPair(Stock stock, double value) {
+    public void setWeight(double weight) {
+		this.weight = weight;
+	}
+
+	public StockPair(Stock stock, double value) {
         this.stock = stock;
         this.value = value;
+        this.weight = 0;
     }
 
     @Override

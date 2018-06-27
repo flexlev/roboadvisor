@@ -33,8 +33,10 @@ public final class StockHelper {
 				mC =  Double.valueOf(marketCap.substring(2, marketCap.length()-2)) * 1000000000;
 			} else if (marketCap.contains("M")) {
 				mC = Double.valueOf(marketCap.substring(2, marketCap.length()-2)) * 1000000;
+			} else {
+				mC = Double.valueOf(marketCap);
 			}
-		} catch (NumberFormatException e) {}
+		} catch (NumberFormatException | StringIndexOutOfBoundsException e) {}
 		
 		return mC;
 	}

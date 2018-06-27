@@ -1,5 +1,7 @@
 package com.roboadvisor.strategy;
 
+import java.util.ArrayList;
+
 import org.apache.commons.math3.linear.RealMatrix;
 
 /*
@@ -62,7 +64,7 @@ public class Cobyla
      * @return Exit status of the COBYLA2 optimization.
      */
 	
-    public static CobylaExitStatus FindMinimum(final Calcfc calcfc, int n, int m, double[] x, double rhobeg, double rhoend, int iprint, int maxfun)
+    public static ArrayList<Double> FindMinimum(final Calcfc calcfc, int n, int m, double[] x, double rhobeg, double rhoend, int iprint, int maxfun)
     {
         //     This subroutine minimizes an objective function F(X) subject to M
         //     inequality constraints on X, where X is a vector of variables that has
@@ -151,7 +153,18 @@ public class Cobyla
         CobylaExitStatus status = cobylb(fcalcfc, n, m, mpp, iox, rhobeg, rhoend, iprint, maxfun);
         System.arraycopy(iox, 1, x, 0, n);
 
-        return status;
+        double sum = 0;
+        for(int i = 0; i<x.length; i++) {
+        	sum += x[i]; 
+        }
+        
+        ArrayList<Double> listWeight = new ArrayList<Double>();
+        
+        for(int i = 0; i<x.length; i++) {
+        	listWeight.add(x[i]/sum);
+        }
+        
+        return listWeight;
     }
     
     private static CobylaExitStatus cobylb(Calcfc calcfc, int n, int m, int mpp, double[] x,

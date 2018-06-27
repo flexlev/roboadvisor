@@ -28,8 +28,8 @@ public class Stock {
 		this.adjustedCloseTS = adjustedCloseTS;
 		this.dateTS = dateTS;
 		weeklyLogReturn = new double[adjustedCloseTS.length];
-		for(int i = 0; i <adjustedCloseTS.length -1; i++ ) {
-			weeklyLogReturn[i] = Math.log(adjustedCloseTS[i+1]/adjustedCloseTS[i]);
+		for(int i = 1; i <adjustedCloseTS.length; i++ ) {
+			weeklyLogReturn[i] = Math.log(adjustedCloseTS[i]/adjustedCloseTS[i-1]);
 		}
 	} 
 	
@@ -172,6 +172,7 @@ public class Stock {
 	public void setCountry(String country) {
 		this.country = country;
 	}
+	
 
 	@Override
 	public String toString() {

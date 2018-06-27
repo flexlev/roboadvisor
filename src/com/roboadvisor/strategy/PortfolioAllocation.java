@@ -41,11 +41,11 @@ public class PortfolioAllocation {
 	private static Portfolio portfolio;
 	
 	public PortfolioAllocation() {
-		stockFetcherYahoo = new StockFetcherYahoo();
-		tickers = stockFetcherYahoo.getAllTickers();
-		
 		Date beg = new GregorianCalendar(2003, 05, 02).getTime();
 		Date end = new GregorianCalendar(2018, 05, 02).getTime();
+		
+		stockFetcherYahoo = new StockFetcherYahoo(beg, end);
+		tickers = stockFetcherYahoo.getAllTickers();
 		
 //		//Downloading data possible stocks from List
 //		//Only done once
@@ -55,6 +55,7 @@ public class PortfolioAllocation {
 		//Also Removes Stocks not with required time serie length
 		removeUndownloadedTickers(beg, end);
 		
+		
 		//Create Diversified Portfolio
 		createDiversifiedPortfolio();
 		
@@ -63,7 +64,11 @@ public class PortfolioAllocation {
 		
 		Portfolio portfolio = new Portfolio(stockAssets);
 		portfolio.populateSeries();
+		
+//		portfolio.printInfo();
+		
 		portfolio.optimizeWeight();
+		portfolio.printCSV();
 	}
 	
 	public static void main(String[] args) throws MalformedURLException, IOException {
@@ -103,8 +108,10 @@ public class PortfolioAllocation {
 	private void createDiversifiedPortfolio() {
 		//Industry
 		String[] sectors = new String[]
-				{"Technology", "Health Care", "Consumer Services", "Capital Goods", "Consumer Durables", "Finance", 
-				"Miscellaneous", "Consumer Non-Durables", "Public Utilities", "Basic Industries", "Energy", "Transportation", "Fixed Income", 
+				{"Technology US", "Health Care US", "Consumer Services US", "Capital Goods US", "Consumer Durables US", "Finance US", 
+				"Consumer Non-Durables US", "Public Utilities US", "Basic Industries US", "Energy US", "Transportation US",
+				"Clean Technology CAD","Consumer Products & Services CAD","Financial Services CAD","Technology CAD","Industrial Products & Services CAD",
+				"Life Sciences CAD","Oil & Gas CAD","Real Estate CAD","Mining CAD","Utilities & Pipelines CAD","Comm & Media CAD",
 				"Fixed Income ETF US", "Fixed Income ETF CAD"};
 		String filename = null;
 		
@@ -116,14 +123,11 @@ public class PortfolioAllocation {
 //			System.out.println("Finding Assets for : " + sector);
 			counter = 0;
 			for(Stock stock: tickers) {
-				//Keeping 5 assets by Industry
+				//By Sector
 				if(stock.getSector().equals(sector)) {
 		    		counter++;
 		    		listDiversifiedStock.add(stock);
 		    	}
-				
-				if(counter >6)
-					break;
 			}
 		}
 		
@@ -131,12 +135,10 @@ public class PortfolioAllocation {
 	}
 
 	private void populateStocks(Date beg, Date end) {
-		
 		stockAssets = new ArrayList<Stock>();
 		for(int i = 0; i < tickers.size(); i++) {//stockAssetsName.length; i++) {
 			try {
 				stockAssets.add(stockFetcherYahoo.getStockTimeSerie(tickers.get(i), beg, end));
-//				System.out.println(stockAssets.get(i).getWeeklyLogReturn().length + " lines for " + stockAssets.get(i).getSymbol());
 			} catch (Exception e) {
 				tickers.remove(i);
 			}
