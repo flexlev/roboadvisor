@@ -62,13 +62,21 @@ public class PortfolioAllocation {
 		//Populating time series
 		populateStocks(beg, end);
 		
-		Portfolio portfolio = new Portfolio(stockAssets,1);
-		portfolio.populateSeries();
+		Portfolio portfolio1 = new Portfolio(stockAssets,1);
+		portfolio1.populateSeries();
+		portfolio1.optimizeWeight();
+		portfolio1.printCSV();
 		
-//		portfolio.printInfo();
+		Portfolio portfolio2 = new Portfolio(stockAssets,2);
+		portfolio2.populateSeries();
+		portfolio2.optimizeWeight();
+		portfolio2.printCSV();
 		
-		portfolio.optimizeWeight();
-		portfolio.printCSV();
+		Portfolio portfolio3 = new Portfolio(stockAssets,3);
+		portfolio3.populateSeries();
+		portfolio3.optimizeWeight();
+		portfolio3.printCSV();
+		
 	}
 	
 	public static void main(String[] args) throws MalformedURLException, IOException {

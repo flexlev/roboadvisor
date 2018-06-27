@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
@@ -233,8 +234,9 @@ public class Portfolio {
 		double value = 0;
 		Date date = new Date();
 		ArrayList<String> holdings = new ArrayList<String>();
+		ArrayList<Double> weights = new ArrayList<Double>();
 		
-		java.io.File csv = new java.io.File("portfolio.csv");
+		java.io.File csv = new java.io.File("portfolio"+ this.varianceTolerance +".csv");
 	    java.io.PrintWriter outfile = null;
 		try {
 			outfile = new java.io.PrintWriter(csv);
@@ -246,9 +248,11 @@ public class Portfolio {
 				value = this.periodPortfolio.get(i).getValue().get(j);
 				for(int m = 0; m< this.periodPortfolio.get(i).getStocks().size(); m++) {
 					holdings.add(this.periodPortfolio.get(i).getStocks().get(m).getSymbol());
+					weights.add(this.periodPortfolio.get(i).getWeights().get(m));
 				}
-				outfile.write(date + "," + value + "," + Arrays.toString(holdings.toArray()) + "\n");
+				outfile.write(DateFormatUtils.format(date, "yyyy-MM-dd") + "," + value + "," + Arrays.toString(holdings.toArray()) + "\n" + ",,"+Arrays.toString(weights.toArray()) +"\n");
 				holdings.clear();
+				weights.clear();
 			}
 		}
 

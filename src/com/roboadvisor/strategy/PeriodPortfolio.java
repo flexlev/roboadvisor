@@ -146,7 +146,7 @@ public class PeriodPortfolio {
 		}
 		
 		calcfc.setCov(this.cov);
-		this.weights = Cobyla.FindMinimum(calcfc, this.stocks.size(), this.stocks.size()+1, xO, 100000, 10000, 1, 10000);
+		this.weights = Cobyla.FindMinimum(calcfc, this.stocks.size(), this.stocks.size()+1, xO, 100000, 100, 1, 10000);
 //		System.out.println(Arrays.toString(this.weights.toArray()));
 		return setValueThroughDates(initialValue);
 	}
