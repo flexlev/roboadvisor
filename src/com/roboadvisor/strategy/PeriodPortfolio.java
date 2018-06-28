@@ -3,6 +3,7 @@ package com.roboadvisor.strategy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.Covariance;
@@ -25,6 +26,7 @@ public class PeriodPortfolio {
 	private ArrayList<Double> weights;
 	private ArrayList<Double> stocksNumber;
 	private ArrayList<Double> value;
+	private ArrayList<String> tickers;
 	
 	public PeriodPortfolio(ArrayList<Stock> stockAssetsCAD, ArrayList<Stock> stockAssetsUS, ArrayList<Stock> mandatoryStockAssets, ArrayList<Date> dates) {
 		this.stockAssetsCAD = stockAssetsCAD;
@@ -38,10 +40,17 @@ public class PeriodPortfolio {
 		this.stocks.addAll(this.mandatoryStockAssets);
 		
 		//populate timeSeries for Covariance Matrix by Dates
-		populateTimeSeries(this.dates.get(0),this.dates.get(this.dates.size()-1));
+		populateTimeSeries(new GregorianCalendar(2003, 05, 02).getTime(),this.dates.get(0));
 		
 		//Covariance Matrix of Asssets
 		this.cov = new Covariance(timeSeries).getCovarianceMatrix();
+	}
+	
+	public PeriodPortfolio(ArrayList<String> tickers, ArrayList<Double> weights, ArrayList<Date> dates, ArrayList<Double> initialValue, int i) {
+		this.tickers = new ArrayList<String>(tickers);
+		this.weights =  new ArrayList<Double>(weights);
+		this.dates = new ArrayList<Date>(dates);
+		this.value = new ArrayList<Double>(initialValue);
 	}
 	
 	//TO VERIFY
@@ -189,6 +198,7 @@ public class PeriodPortfolio {
 		return initialValueIterative;
 		
 	}
+	
 
 	private double dotProduct(ArrayList<Double> stockValue, ArrayList<Double> weights) {
 		double dotP = 0;
@@ -199,7 +209,10 @@ public class PeriodPortfolio {
 	}
 
 	public String toString() {
-		String str = "First Date is : " + this.dates.get(0);
+		String str = "Tickers : " + Arrays.toString(this.tickers.toArray())  + "\n" +
+					"Weights : " + Arrays.toString(this.weights.toArray()) + "\n" + 
+					"Dates : " + Arrays.toString(this.dates.toArray()) + "\n" + 
+					"Initial Value : " + Arrays.toString(this.value.toArray()) ;
 		return str;
 	}
 
@@ -233,6 +246,70 @@ public class PeriodPortfolio {
 
 	public void setValue(ArrayList<Double> value) {
 		this.value = value;
+	}
+
+	public ArrayList<Stock> getStockAssetsCAD() {
+		return stockAssetsCAD;
+	}
+
+	public void setStockAssetsCAD(ArrayList<Stock> stockAssetsCAD) {
+		this.stockAssetsCAD = stockAssetsCAD;
+	}
+
+	public ArrayList<Stock> getStockAssetsUS() {
+		return stockAssetsUS;
+	}
+
+	public void setStockAssetsUS(ArrayList<Stock> stockAssetsUS) {
+		this.stockAssetsUS = stockAssetsUS;
+	}
+
+	public ArrayList<Stock> getMandatoryStockAssets() {
+		return mandatoryStockAssets;
+	}
+
+	public void setMandatoryStockAssets(ArrayList<Stock> mandatoryStockAssets) {
+		this.mandatoryStockAssets = mandatoryStockAssets;
+	}
+
+	public double[][] getTimeSeries() {
+		return timeSeries;
+	}
+
+	public void setTimeSeries(double[][] timeSeries) {
+		this.timeSeries = timeSeries;
+	}
+
+	public RealMatrix getCov() {
+		return cov;
+	}
+
+	public void setCov(RealMatrix cov) {
+		this.cov = cov;
+	}
+
+	public double getInitialValue() {
+		return initialValue;
+	}
+
+	public void setInitialValue(double initialValue) {
+		this.initialValue = initialValue;
+	}
+
+	public ArrayList<Double> getStocksNumber() {
+		return stocksNumber;
+	}
+
+	public void setStocksNumber(ArrayList<Double> stocksNumber) {
+		this.stocksNumber = stocksNumber;
+	}
+
+	public ArrayList<String> getTickers() {
+		return tickers;
+	}
+
+	public void setTickers(ArrayList<String> tickers) {
+		this.tickers = tickers;
 	}
 	
 

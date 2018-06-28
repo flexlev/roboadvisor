@@ -1,5 +1,8 @@
 package com.roboadvisor.stockapi;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 public final class StockHelper {
@@ -39,6 +42,17 @@ public final class StockHelper {
 		} catch (NumberFormatException | StringIndexOutOfBoundsException e) {}
 		
 		return mC;
+	}
+	
+	public static Date createDate(String date) {
+	     try {
+	    	 if (date.contains("-"))
+	         	return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+	    	 else
+	 			return new SimpleDateFormat("dd/MM/yyyy").parse(date);
+	     } catch (ParseException e) {
+	        return null;
+	     }
 	}
 	
 }

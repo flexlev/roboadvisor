@@ -34,6 +34,7 @@ public class PortfolioAllocation {
 	// XLF - Banking
 	
 	private StockFetcherYahoo stockFetcherYahoo;
+
 	private static ArrayList<Stock> stockAssets;
 	
 	private static ArrayList<Stock> tickers;
@@ -62,6 +63,11 @@ public class PortfolioAllocation {
 		//Populating time series
 		populateStocks(beg, end);
 		
+	}
+	
+	public static void main(String[] args) throws MalformedURLException, IOException {
+		new PortfolioAllocation();
+		
 		Portfolio portfolio1 = new Portfolio(stockAssets,1);
 		portfolio1.populateSeries();
 		portfolio1.optimizeWeight();
@@ -76,11 +82,6 @@ public class PortfolioAllocation {
 		portfolio3.populateSeries();
 		portfolio3.optimizeWeight();
 		portfolio3.printCSV();
-		
-	}
-	
-	public static void main(String[] args) throws MalformedURLException, IOException {
-		new PortfolioAllocation();
 	}
 
 	private void removeUndownloadedTickers(Date beg, Date end) {
@@ -172,7 +173,37 @@ public class PortfolioAllocation {
 		}
 	}
 	
-	
+	public StockFetcherYahoo getStockFetcherYahoo() {
+		return stockFetcherYahoo;
+	}
+
+	public void setStockFetcherYahoo(StockFetcherYahoo stockFetcherYahoo) {
+		this.stockFetcherYahoo = stockFetcherYahoo;
+	}
+
+	public static ArrayList<Stock> getStockAssets() {
+		return stockAssets;
+	}
+
+	public static void setStockAssets(ArrayList<Stock> stockAssets) {
+		PortfolioAllocation.stockAssets = stockAssets;
+	}
+
+	public static ArrayList<Stock> getTickers() {
+		return tickers;
+	}
+
+	public static void setTickers(ArrayList<Stock> tickers) {
+		PortfolioAllocation.tickers = tickers;
+	}
+
+	public static Portfolio getPortfolio() {
+		return portfolio;
+	}
+
+	public static void setPortfolio(Portfolio portfolio) {
+		PortfolioAllocation.portfolio = portfolio;
+	}
 	
 	
 }

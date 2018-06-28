@@ -160,7 +160,7 @@ public class StockFetcherYahoo {
 		Date temp =null;
 		for(int i =0; i<stringArray.length ;i++ ) {
 			String[] split = stringArray[i].split(",");
-			temp = createDate(split[0]);
+			temp = StockHelper.createDate(split[0]);
 			if(temp.after(beg) && temp.before(end)) {
 				if(ticker.getCountry() == "US")
 					exchangeRate = getExchangeRate(temp.getMonth(), temp.getYear());
@@ -190,17 +190,6 @@ public class StockFetcherYahoo {
     		}
     	}
 		return exRate;
-	}
-
-	private static Date createDate(String date) {
-	     try {
-	    	 if (date.contains("-"))
-	         	return new SimpleDateFormat("yyyy-MM-dd").parse(date);
-	    	 else
-	 			return new SimpleDateFormat("dd/MM/yyyy").parse(date);
-	     } catch (ParseException e) {
-	        return null;
-	     }
 	}
     
 //    public static void main (String[] args) {
@@ -339,7 +328,7 @@ public class StockFetcherYahoo {
 			
 			for(int i =0; i<stringArray.length ;i++ ) {
 				String[] split = stringArray[i].split(",");
-				temp = createDate(split[0]);
+				temp = StockHelper.createDate(split[0]);
 				if(temp.after(beg) && temp.before(end)) {
 					prices.add(Double.parseDouble(split[1]));
 					dates.add(temp);

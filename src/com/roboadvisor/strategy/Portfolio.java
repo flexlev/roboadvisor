@@ -160,9 +160,19 @@ public class Portfolio {
 	
 	private StockPair[] eliminateVariance(StockPair[] performance, int levelSelection) {
 		
-		StockPair[] tops = new StockPair[(int)performance.length*levelSelection/3];
+		//Delete last 10% most volatile even riskiest portfolio
+		double multiplicator = 1;
+		if(levelSelection == 3)
+			multiplicator = 0.95;
+		
+		int length = (int) (performance.length*levelSelection/3.0*multiplicator);
+		StockPair[] tops = new StockPair[length];
 
-		for(int i = 0; i< (int)performance.length*levelSelection/3 ; i++) {
+		
+		
+			
+			
+		for(int i = 0; i< length; i++) {
 			tops[i] = performance[i];
 		}
 		
@@ -205,7 +215,7 @@ public class Portfolio {
         return k;
 	}
 
-	private ArrayList<Date> getRebalanceDates() {
+	public ArrayList<Date> getRebalanceDates() {
 		ArrayList<Date> dates = new ArrayList<Date>();
 		
 		Calendar cal = Calendar.getInstance();
@@ -281,6 +291,58 @@ public class Portfolio {
 
 	public void setCobyla(Cobyla cobyla) {
 		this.cobyla = cobyla;
+	}
+
+	public ArrayList<PeriodPortfolio> getPeriodPortfolio() {
+		return periodPortfolio;
+	}
+
+	public void setPeriodPortfolio(ArrayList<PeriodPortfolio> periodPortfolio) {
+		this.periodPortfolio = periodPortfolio;
+	}
+
+	public ArrayList<Stock> getElligibleStockAssetsCAD() {
+		return elligibleStockAssetsCAD;
+	}
+
+	public void setElligibleStockAssetsCAD(ArrayList<Stock> elligibleStockAssetsCAD) {
+		this.elligibleStockAssetsCAD = elligibleStockAssetsCAD;
+	}
+
+	public ArrayList<Stock> getElligibleStockAssetsUS() {
+		return elligibleStockAssetsUS;
+	}
+
+	public void setElligibleStockAssetsUS(ArrayList<Stock> elligibleStockAssetsUS) {
+		this.elligibleStockAssetsUS = elligibleStockAssetsUS;
+	}
+
+	public ArrayList<Stock> getMandatoryStockAssets() {
+		return mandatoryStockAssets;
+	}
+
+	public void setMandatoryStockAssets(ArrayList<Stock> mandatoryStockAssets) {
+		this.mandatoryStockAssets = mandatoryStockAssets;
+	}
+
+	public ArrayList<RealMatrix> getCovs() {
+		return covs;
+	}
+
+	public void setCovs(ArrayList<RealMatrix> covs) {
+		this.covs = covs;
+	}
+
+	public int getVarianceTolerance() {
+		return varianceTolerance;
+	}
+
+	public void setVarianceTolerance(int varianceTolerance) {
+		this.varianceTolerance = varianceTolerance;
+	}
+
+	public void setRebalanceDates(ArrayList<Date> rebalanceDates) {
+		this.rebalanceDates = rebalanceDates;
 	}
 	
 }
