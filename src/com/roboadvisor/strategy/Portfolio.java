@@ -75,12 +75,12 @@ public class Portfolio {
 		//get the rebalance Dates stating at 
 		this.rebalanceDates = getRebalanceDates();
 		
-		for(int i = 0 ; i< this.rebalanceDates.size()-7 ; i++) {
+		for(int i = 0 ; i< this.rebalanceDates.size()-2 ; i++) {
 			periodPortfolio.add(new PeriodPortfolio(
-					getBestPrevious6Months(this.rebalanceDates.get(i), this.rebalanceDates.get(i+6),"CAD"),
-					getBestPrevious6Months(this.rebalanceDates.get(i), this.rebalanceDates.get(i+6),"US"),
+					getBestPrevious6Months(this.rebalanceDates.get(i), this.rebalanceDates.get(i+1),"CAD"),
+					getBestPrevious6Months(this.rebalanceDates.get(i), this.rebalanceDates.get(i+1),"US"),
 					this.mandatoryStockAssets,
-					getInBetweenDates(this.rebalanceDates.get(i+6), this.rebalanceDates.get(i+7))));
+					getInBetweenDates(this.rebalanceDates.get(i+1), this.rebalanceDates.get(i+2))));
 			
 //			if(i ==0) {
 //				System.out.println("Dates in between : " + Arrays.toString(getInBetweenDates(this.rebalanceDates.get(i+6), this.rebalanceDates.get(i+7)).toArray()));
@@ -112,7 +112,6 @@ public class Portfolio {
 		if(specificity.equals("CAD"))
 			inventory = this.elligibleStockAssetsCAD;
 		
-		ArrayList<Stock> bestStocks = new ArrayList<Stock>();
 		//best CAD
 		StockPair[] performance = new StockPair[inventory.size()];
 		for(int i =0; i< inventory.size(); i++) {
@@ -219,13 +218,18 @@ public class Portfolio {
 		ArrayList<Date> dates = new ArrayList<Date>();
 		
 		Calendar cal = Calendar.getInstance();
-		int month = cal.get(Calendar.MONTH);
 		int currentMonth = 4;
+		int monthsCounter = 0;
 		
 		for(int i=0; i<this.mandatoryStockAssets.get(0).getDateTS().length; i++) {
 			cal.setTime(this.mandatoryStockAssets.get(0).getDateTS()[i]);
 			if(currentMonth != cal.get(Calendar.MONTH)) {
-				dates.add(this.mandatoryStockAssets.get(0).getDateTS()[i]);
+				monthsCounter++;
+				if(monthsCounter == 6) {
+					monthsCounter = 0;
+					dates.add(this.mandatoryStockAssets.get(0).getDateTS()[i]);
+				}
+				
 				currentMonth =  cal.get(Calendar.MONTH);
 			}	
 		}

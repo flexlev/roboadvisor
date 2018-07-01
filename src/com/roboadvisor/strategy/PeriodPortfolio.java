@@ -192,7 +192,7 @@ public class PeriodPortfolio {
 			initialValueIterative = dotProduct(stockValue,stocksNumber);
 			this.value.add(initialValueIterative);
 			stockValue.clear();
-			System.out.println(initialValueIterative);
+			System.out.println("Working on : " + dates.get(i));
 		}
 		
 		return initialValueIterative;
