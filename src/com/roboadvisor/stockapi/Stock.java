@@ -13,6 +13,7 @@ public class Stock {
 	private String industry;
 	private String country;
 	private double marketCap;
+	private double weight;
 	
 	private double[] adjustedCloseTS;
 	private Date[] dateTS;
@@ -27,6 +28,17 @@ public class Stock {
 		this.symbol = symbol; 
 		this.adjustedCloseTS = adjustedCloseTS;
 		this.dateTS = dateTS;
+		weeklyLogReturn = new double[adjustedCloseTS.length];
+		for(int i = 1; i <adjustedCloseTS.length; i++ ) {
+			weeklyLogReturn[i] = Math.log(adjustedCloseTS[i]/adjustedCloseTS[i-1]);
+		}
+	} 
+	
+	public Stock(String symbol, String country, double[] adjustedCloseTS, Date[] dateTS) {
+		this.symbol = symbol; 
+		this.adjustedCloseTS = adjustedCloseTS;
+		this.dateTS = dateTS;
+		this.country = country;
 		weeklyLogReturn = new double[adjustedCloseTS.length];
 		for(int i = 1; i <adjustedCloseTS.length; i++ ) {
 			weeklyLogReturn[i] = Math.log(adjustedCloseTS[i]/adjustedCloseTS[i-1]);
@@ -172,7 +184,14 @@ public class Stock {
 	public void setCountry(String country) {
 		this.country = country;
 	}
-	
+
+	public double getWeight() {
+		return weight;
+	}
+
+	public void setWeight(double weight) {
+		this.weight = weight;
+	}
 
 	@Override
 	public String toString() {

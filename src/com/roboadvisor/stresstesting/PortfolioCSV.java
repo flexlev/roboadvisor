@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import com.roboadvisor.stockapi.Stock;
 import com.roboadvisor.stockapi.StockHelper;
 import com.roboadvisor.strategy.PeriodPortfolio;
 import com.roboadvisor.strategy.Portfolio;
@@ -32,7 +33,7 @@ public class PortfolioCSV {
 		Date end = new GregorianCalendar(2018, 05, 02).getTime();
 		
 		this.portfolioAllocation = new PortfolioAllocation();
-		this.portfolio = new Portfolio(this.portfolioAllocation.getStockAssets(), 1);
+		this.portfolio = new Portfolio(this.portfolioAllocation.getStockAssets(),1);
 		this.portfolio.setRebalanceDates(this.portfolio.getRebalanceDates());
 		
 		populatePeriodPortfolio(portfolioCSV);
@@ -71,7 +72,7 @@ public class PortfolioCSV {
 				
 				if(currentDate.equals(nextDate) || (i == (stringArray.length-2))) {
 					for(int j = 2; j<split0.length ; j++) {
-						tickersTemp.add(split0[j].replace("[", "").replace("]", ""));
+						tickersTemp.add(split0[j].replace("[", "").replace("]", "").replaceAll(" ", ""));
 					}
 					
 					String[] split1 = stringArray[i+1].split(",");
@@ -79,7 +80,7 @@ public class PortfolioCSV {
 						weightsTemp.add(Double.parseDouble(split1[j].replace("[", "").replace("]", "")));
 					}
 					
-					this.portfolio.getPeriodPortfolio().add(new PeriodPortfolio(tickersTemp, weightsTemp, datesTemp, initialValueTemp, 1));
+					this.portfolio.getPeriodPortfolio().add(new PeriodPortfolio(tickersTemp, weightsTemp, datesTemp, initialValueTemp,getAssets(tickersTemp)));
 					
 					currentDate = null;
 					nextDate = null;
@@ -98,10 +99,55 @@ public class PortfolioCSV {
 		
 	}
 	
+	private ArrayList<Stock> getAssets(ArrayList<String> tickersTemp) {
+		
+		ArrayList<Stock> stocks = new ArrayList<Stock>();
+		
+		for(int j =0; j< this.portfolio.getElligibleStockAssetsCAD().size() ; j++) {
+			for(int m = 0; m <tickersTemp.size(); m++) {
+				if(this.portfolio.getElligibleStockAssetsCAD().get(j).getSymbol().equals(tickersTemp.get(m)))
+					stocks.add(this.portfolio.getElligibleStockAssetsCAD().get(j));
+			}
+		}
+		
+		for(int j =0; j< this.portfolio.getElligibleStockAssetsUS().size() ; j++) {
+			for(int m = 0; m <tickersTemp.size(); m++) {
+				if(this.portfolio.getElligibleStockAssetsUS().get(j).getSymbol().equals(tickersTemp.get(m)))
+					stocks.add(this.portfolio.getElligibleStockAssetsUS().get(j));
+			}
+		}
+		
+		for(int j =0; j< this.portfolio.getMandatoryStockAssets().size() ; j++) {
+			for(int m = 0; m <tickersTemp.size(); m++) {
+				if(this.portfolio.getMandatoryStockAssets().get(j).getSymbol().equals(tickersTemp.get(m)))
+					stocks.add(this.portfolio.getMandatoryStockAssets().get(j));
+			}
+		}
+		return stocks;
+	}
+
 	private void printPortfolio() {
 		for(int i =0; i <this.portfolio.getPeriodPortfolio().size() ; i++) {
 			System.out.println(this.portfolio.getPeriodPortfolio().get(i));
 		}
 		
 	}
+
+	public Portfolio getPortfolio() {
+		return portfolio;
+	}
+
+	public void setPortfolio(Portfolio portfolio) {
+		this.portfolio = portfolio;
+	}
+
+	public PortfolioAllocation getPortfolioAllocation() {
+		return portfolioAllocation;
+	}
+
+	public void setPortfolioAllocation(PortfolioAllocation portfolioAllocation) {
+		this.portfolioAllocation = portfolioAllocation;
+	}
+	
+	
 }

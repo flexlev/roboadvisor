@@ -1,14 +1,23 @@
 package com.roboadvisor.strategy;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.Covariance;
+import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 
 import com.roboadvisor.stockapi.Stock;
+import com.roboadvisor.stockapi.StockHelper;
 
 public class PeriodPortfolio {
 	
@@ -28,6 +37,15 @@ public class PeriodPortfolio {
 	private ArrayList<Double> value;
 	private ArrayList<String> tickers;
 	
+	private ArrayList<Stock> econFactorsUS;
+	private ArrayList<Double> portfolioValueMonthlyUS;
+	
+	private ArrayList<Stock> econFactorsCAD;
+	private ArrayList<Double> portfolioValueMonthlyCAD;
+	private ArrayList<Date> dateFactors;
+	private double[] betaEconFactorsUS;
+	private double[] betaEconFactorsCAD;
+	
 	public PeriodPortfolio(ArrayList<Stock> stockAssetsCAD, ArrayList<Stock> stockAssetsUS, ArrayList<Stock> mandatoryStockAssets, ArrayList<Date> dates) {
 		this.stockAssetsCAD = stockAssetsCAD;
 		this.stockAssetsUS = stockAssetsUS;
@@ -46,11 +64,12 @@ public class PeriodPortfolio {
 		this.cov = new Covariance(timeSeries).getCovarianceMatrix();
 	}
 	
-	public PeriodPortfolio(ArrayList<String> tickers, ArrayList<Double> weights, ArrayList<Date> dates, ArrayList<Double> initialValue, int i) {
+	public PeriodPortfolio(ArrayList<String> tickers, ArrayList<Double> weights, ArrayList<Date> dates, ArrayList<Double> initialValue, ArrayList<Stock> stocks) {
 		this.tickers = new ArrayList<String>(tickers);
 		this.weights =  new ArrayList<Double>(weights);
 		this.dates = new ArrayList<Date>(dates);
 		this.value = new ArrayList<Double>(initialValue);
+		this.stocks = new ArrayList<Stock>(stocks);
 	}
 	
 	//TO VERIFY
@@ -206,6 +225,238 @@ public class PeriodPortfolio {
 			dotP += stockValue.get(i).doubleValue()*weights.get(i).doubleValue();
 		}
 		return dotP;
+	}
+	
+	private double dotProduct(double[] v, double[] w) {
+		double dotP = 0;
+		
+		if(v.length != w.length)
+			return 0;
+		
+		for(int i=0; i<v.length; i++) {
+			dotP += v[i]*w[i];
+		}
+		return dotP;
+	}
+	
+	public void fitToEconomicFactors(Date beg, Date end) {
+		this.econFactorsUS = new ArrayList<Stock>();
+		this.econFactorsCAD = new ArrayList<Stock>();
+		
+		populateEconomicFactors("Unemployment Rate US", "US", 1, beg, end);
+		populateEconomicFactors("Short Interest Rate US", "US", 3, beg, end);
+//		populateEconomicFactors("CPI US", "US", 7, beg, end);
+		populateEconomicFactors("Long Term Interest rate US", "US", 9, beg, end);
+		populateEconomicFactors("Crude Oil", "US", 5, beg, end);
+		populateEconomicFactors("S&P 500", "US", 6, beg, end);
+		populateEconomicFactors("Exchange Rate", "US", 11, beg, end);
+		
+		
+		populateEconomicFactors("Unemployment Rate Canada", "CAD", 2, beg, end);
+		populateEconomicFactors("Short Interest Rate Canada", "CAD", 4, beg, end);
+//		populateEconomicFactors("CPI Canada", "CAD", 8, beg, end);
+		populateEconomicFactors("Long Term interest rate Canada", "CAD", 10, beg, end);
+		populateEconomicFactors("Crude Oil", "CAD", 5, beg, end);
+		populateEconomicFactors("TSX", "CAD", 12, beg, end);
+		populateEconomicFactors("Exchange Rate", "CAD", 11, beg, end);
+		
+		createDateFactors();
+		fitFactorsLoaded();
+		getBetas();
+		createScenarios(0.98, 0.99, 0.99, 1.02, 1.02, 1, "UP");
+		createScenarios(1.02, 1.01, 1.01, 0.98, 0.98, 1, "DOWN");
+		createScenarios(1, 1, 1, 1, 1, 1, "BASE");
+	}
+	
+	private void fitFactorsLoaded() {
+		
+		this.portfolioValueMonthlyUS = new ArrayList<Double>();
+		this.portfolioValueMonthlyCAD = new ArrayList<Double>();
+		ArrayList<Double> stockValueUS = new ArrayList<Double>();
+		ArrayList<Double> stocksNumberUS = new ArrayList<Double>();
+		ArrayList<Double> stockValueCAD = new ArrayList<Double>();
+		ArrayList<Double> stocksNumberCAD = new ArrayList<Double>();
+		
+		int index = 0;
+		double initialValueIterativeUS = 1000000;
+		double initialValueIterativeCAD = 1000000;
+		double stockValue = 0;
+		
+		System.out.println(Arrays.toString(this.weights.toArray()));
+		for(int i = 0; i< this.dateFactors.size(); i++) {
+			for(int j =0; j<this.stocks.size(); j++) {
+				index = Arrays.asList(stocks.get(j).getDateTS()).indexOf(this.dateFactors.get(i));
+				
+				//not Factoring Transaction Cost
+				if(this.stocks.get(j).getCountry().equals("US")) {
+					stockValue = this.stocks.get(j).getAdjustedCloseTS()[index];
+					stockValueUS.add(stockValue);
+					if(i ==0)
+						stocksNumberUS.add(initialValueIterativeUS*this.weights.get(j).doubleValue()/stockValue);
+				} else if(this.stocks.get(j).getCountry().equals("CAD")) {
+					stockValue = this.stocks.get(j).getAdjustedCloseTS()[index];
+					stockValueCAD.add(stockValue);
+					if(i ==0)
+						stocksNumberCAD.add(initialValueIterativeCAD*this.weights.get(j).doubleValue()/stockValue);
+				}
+			}
+			
+			initialValueIterativeUS = dotProduct(stockValueUS,stocksNumberUS);
+			initialValueIterativeCAD = dotProduct(stockValueCAD,stocksNumberCAD);
+			
+			this.portfolioValueMonthlyUS.add(initialValueIterativeUS);
+			this.portfolioValueMonthlyCAD.add(initialValueIterativeCAD);
+			
+			stockValueUS.clear();
+			stockValueCAD.clear();
+			
+//			System.out.println("Working on US: " + this.dateFactors.get(i) + " with Value: " + this.portfolioValueMonthlyUS.get(i));
+//			System.out.println("Working on CAD: " + this.dateFactors.get(i) + " with Value: " + this.portfolioValueMonthlyCAD.get(i));
+		}
+		
+	}
+	
+	private void getBetas() {
+		
+		this.betaEconFactorsUS = new double[this.econFactorsUS.size()];
+		this.betaEconFactorsCAD = new double[this.econFactorsCAD.size()];
+		
+		double[] yUS = new double[this.portfolioValueMonthlyUS.size()];
+		double[][] xUS = new double[this.portfolioValueMonthlyUS.size()][this.econFactorsUS.size()];
+		
+		double[] yCAD = new double[this.portfolioValueMonthlyCAD.size()];
+		double[][] xCAD = new double[this.portfolioValueMonthlyCAD.size()][this.econFactorsCAD.size()];
+		
+		int index = 0;
+		int previousIndex = -1;
+		
+		for(int i=0; i<this.portfolioValueMonthlyUS.size()-1; i++) {
+			yUS[i] = (this.portfolioValueMonthlyUS.get(i+1)/this.portfolioValueMonthlyUS.get(i)-1)*10000;
+			yCAD[i] = (this.portfolioValueMonthlyCAD.get(i+1)/this.portfolioValueMonthlyCAD.get(i)-1)*10000;
+			
+			for(int j=0; j<this.econFactorsUS.size() ; j++) {
+				xUS[i][j] = this.econFactorsUS.get(j).getAdjustedCloseTS()[i+1];
+				xCAD[i][j] = this.econFactorsCAD.get(j).getAdjustedCloseTS()[i+1];
+			}
+		} 
+		
+		OLSMultipleLinearRegression olsUS = new OLSMultipleLinearRegression();
+		olsUS.newSampleData(yUS, xUS);
+		this.betaEconFactorsUS = olsUS.estimateRegressionParameters();
+		
+		OLSMultipleLinearRegression olsCAD = new OLSMultipleLinearRegression();
+		olsCAD.newSampleData(yCAD, xCAD);
+		this.betaEconFactorsCAD = olsCAD.estimateRegressionParameters();
+		
+		System.out.println(Arrays.toString(this.betaEconFactorsUS));
+		System.out.println(Arrays.toString(this.betaEconFactorsCAD));
+		
+	}
+	
+	private void createScenarios(double changeUnemploymentRate, double changeShortIR, double changeLongIR, double changeCrudeOil, double changeMarket, double changeExchangeRate, String scenarioOutlook) {
+		double[] adjustement = new double[] {changeUnemploymentRate, changeShortIR, changeLongIR, changeCrudeOil, changeMarket, changeExchangeRate};
+		
+		double[][] scenarioCAD = new double[6][this.econFactorsCAD.size()+1];
+		double[][] scenarioUS = new double[6][this.econFactorsUS.size()+1];
+		for(int i = 0; i <6; i++) {
+			for(int j =0; j<this.econFactorsCAD.size()+1; j++) {
+				if(j ==0) {
+					scenarioCAD[i][j]= 1;
+					scenarioUS[i][j]= 1;
+				} else {
+					scenarioCAD[i][j]= Math.pow(adjustement[j-1], i)*this.econFactorsCAD.get(j-1).getAdjustedCloseTS()[this.econFactorsCAD.get(j-1).getAdjustedCloseTS().length-1];
+					scenarioUS[i][j]= Math.pow(adjustement[j-1], i)*this.econFactorsUS.get(j-1).getAdjustedCloseTS()[this.econFactorsUS.get(j-1).getAdjustedCloseTS().length-1];
+				}
+				
+				System.out.print(scenarioUS[i][j] + " ");
+				if(j == this.econFactorsCAD.size())
+					System.out.println();
+			}
+		}
+		
+		printScenarioOutcome(scenarioCAD, "CAD", scenarioOutlook);
+		printScenarioOutcome(scenarioUS, "US", scenarioOutlook);
+	}
+	
+	private void printScenarioOutcome(double[][] scenario, String country, String scenarioOutlook) {
+		double[] factors = new double[this.econFactorsCAD.size()+1];
+		double value = 0;
+		
+		java.io.File csv = new java.io.File("scenario"+ scenarioOutlook + country + ".csv");
+	    java.io.PrintWriter outfile = null;
+		try {
+			outfile = new java.io.PrintWriter(csv);
+		} catch (FileNotFoundException e) {}
+		
+		for(int i=0; i < scenario.length; i++) {
+			for(int j =0; j<scenario[0].length; j++) {
+				factors[j] = scenario[i][j];
+			}
+			if(country.equals("CAD"))
+				value = dotProduct(factors, this.betaEconFactorsCAD);
+			else
+				value = dotProduct(factors, this.betaEconFactorsUS);
+			
+			outfile.write(value/10000 +"\n");
+		}
+
+	    outfile.close();
+		
+	}
+
+	private void createDateFactors() {
+		this.dateFactors = new ArrayList<Date>();
+		Calendar cal = Calendar.getInstance();
+		int currentMonth = -1;
+		
+		for(int i = 0; i<this.stocks.get(0).getDateTS().length; i++) {
+			cal.setTime(this.stocks.get(0).getDateTS()[i]);
+			if(currentMonth != cal.get(Calendar.MONTH)) {
+				currentMonth = cal.get(Calendar.MONTH);
+				this.dateFactors.add(this.stocks.get(0).getDateTS()[i]);
+			}
+		}
+	}
+
+	private void populateEconomicFactors(String factorName, String country, int indexToExtract, Date beg, Date end) {
+		String asset = "assets/econFactor.csv";
+		BufferedReader br;
+		
+		
+		
+		ArrayList<Double> prices= new ArrayList<Double>();
+		ArrayList<Date> dates= new ArrayList<Date>();
+		Date temp = null;
+		String price = null;
+		
+		try {
+			br = new BufferedReader(new FileReader(asset));
+			Stream<String> lines = br.lines();
+			String[] stringArray = lines.toArray(String[]::new);
+			
+			for(int i =1; i<stringArray.length ;i++ ) {
+				String[] split = stringArray[i].split(",");
+				temp = StockHelper.createDate(split[0]);
+				if(temp.after(beg) && temp.before(end)) {
+					price = split[indexToExtract].replaceAll("\"", "");
+					prices.add(Double.parseDouble(price));
+					dates.add(temp);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		Date[] datesArray = new Date[dates.size()];
+		double[] pricesArray = null;
+		
+		datesArray = dates.toArray(datesArray);
+		pricesArray = ArrayUtils.toPrimitive(prices.toArray(new Double[prices.size()]));
+		
+		if(country.equals("US"))
+			this.econFactorsUS.add(new Stock(factorName, country, pricesArray, datesArray));
+		else if(country.equals("CAD"))
+			this.econFactorsCAD.add(new Stock(factorName, country, pricesArray, datesArray));
 	}
 
 	public String toString() {
