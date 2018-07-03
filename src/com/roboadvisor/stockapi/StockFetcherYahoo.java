@@ -110,9 +110,9 @@ public class StockFetcherYahoo {
     }
                   
 
-    public void downloadData(String symbol, long startDate, long endDate, String crumb) {
+    public void downloadData(String symbol, long startDate, long endDate, String interval, String crumb) {
         String filename = String.format("assets/%s.csv", symbol);
-        String url = String.format("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1wk&events=history&crumb=%s", symbol, startDate, endDate, crumb);
+        String url = String.format("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=%s&events=history&crumb=%s", symbol, startDate, endDate, interval, crumb);
         HttpGet request = new HttpGet(url);
         System.out.println(url);
 
@@ -175,9 +175,10 @@ public class StockFetcherYahoo {
 		datesArray = dates.toArray(datesArray);
 		pricesArray = ArrayUtils.toPrimitive(prices.toArray(new Double[prices.size()]));
 		
-		if(datesArray.length != 782 ) {
-			throw new Exception();
-		}
+//		if(datesArray.length != 782) {
+//			throw new Exception();
+//		}
+		
 		return new Stock(ticker, pricesArray, datesArray);
 	}
     
