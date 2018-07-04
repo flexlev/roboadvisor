@@ -162,7 +162,7 @@ public class PortfolioAllocation {
 				if (crumb != null && !crumb.isEmpty()) {
 	                System.out.println(String.format("Downloading data to %s", stock.getSymbol()));
 	                System.out.println("Crumb: " + crumb);
-	                stockFetcherYahoo.downloadData(stock.getSymbol(), 0, System.currentTimeMillis(), crumb);
+	                stockFetcherYahoo.downloadData(stock.getSymbol(), 0, System.currentTimeMillis(),"1wk", crumb);
 	            } else {
 	                System.out.println(String.format("Error retreiving data for %s", stock.getSymbol()));
 	            }

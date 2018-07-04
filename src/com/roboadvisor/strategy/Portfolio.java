@@ -19,7 +19,6 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.apache.commons.math3.stat.correlation.Covariance;
 
-import com.joptimizer.functions.ConvexMultivariateRealFunction;
 import com.roboadvisor.stockapi.Stock;
 
 @SuppressWarnings("deprecation")

@@ -19,7 +19,7 @@
     <AnchorPane layoutX="599.0" layoutY="147.0" prefHeight="332.0" prefWidth="344.0" style="-fx-background-color: #3f3f3f;">
       <children>
         <TextField fx:id="email" layoutX="36.0" layoutY="107.0" prefHeight="22.0" prefWidth="274.0" promptText="E-MAIL ADDRESS" style="-fx-background-color: #d1cccc; -fx-border-color: #FFFFFF; -fx-border-radius: 5px; -fx-opacity: 0.7;" />
-        <Button layoutX="35.0" layoutY="222.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="274.0" style="-fx-background-color: #ade6bc;" text="Sign In">
+        <Button layoutX="35.0" layoutY="222.0" mnemonicParsing="false" onMouseClicked="#handleLogin" prefHeight="41.0" prefWidth="274.0" style="-fx-background-color: #ade6bc;" text="Sign In">
           <font>
             <Font size="17.0" fx:id="x3" />
           </font>
