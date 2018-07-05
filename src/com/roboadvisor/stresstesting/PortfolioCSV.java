@@ -3,6 +3,7 @@ package com.roboadvisor.stresstesting;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -10,6 +11,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import com.roboadvisor.dao.GeneralDaoService;
 import com.roboadvisor.stockapi.Stock;
 import com.roboadvisor.stockapi.StockHelper;
 import com.roboadvisor.strategy.PeriodPortfolio;
@@ -22,10 +24,14 @@ public class PortfolioCSV {
 	
 	private PortfolioAllocation portfolioAllocation;
 	
+	private static GeneralDaoService generalDaoService;
 
 	public static void main(String[] args) {
-		PortfolioCSV portfolioCSV = new PortfolioCSV("portfolio3.csv");
-		portfolioCSV.printPortfolio();
+		PortfolioCSV portfolioCSV = new PortfolioCSV("portfolio1.csv");
+//		portfolioCSV.printPortfolio();
+		generalDaoService = new GeneralDaoService();
+//		portfolioCSV.saveHoldings(portfolioCSV.portfolio.getPeriodPortfolio().size()-1, "growth");
+		portfolioCSV.countAssets();
 	}
 
 	public PortfolioCSV(String portfolioCSV) {
@@ -130,7 +136,30 @@ public class PortfolioCSV {
 		for(int i =0; i <this.portfolio.getPeriodPortfolio().size() ; i++) {
 			System.out.println(this.portfolio.getPeriodPortfolio().get(i));
 		}
-		
+	}
+	
+	private void saveHoldings(int index, String name) {
+		double weight = 0.0;
+		for(int i =0; i <this.portfolio.getPeriodPortfolio().get(index).getTickers().size() ; i++) {
+			weight = Double.parseDouble(new DecimalFormat("##.####").format(this.portfolio.getPeriodPortfolio().get(index).getWeights().get(i)*100));
+			generalDaoService.saveStock(this.portfolio.getPeriodPortfolio().get(index).getTickers().get(i), weight, name);
+		}
+	}
+	
+	private void countAssets() {
+		ArrayList<String> tickUsed = new ArrayList<String>();
+		int n = 0;
+		for(int i =0; i <this.portfolio.getPeriodPortfolio().size() ; i++) {
+			for(int j =0; j<this.portfolio.getPeriodPortfolio().get(i).getTickers().size(); j++) {
+				if(tickUsed.contains(this.portfolio.getPeriodPortfolio().get(i).getTickers().get(j))) {
+				} else {
+					tickUsed.add(this.portfolio.getPeriodPortfolio().get(i).getTickers().get(j));
+					n++;
+				}
+				
+			}
+		}
+		System.out.println("Number of Unique Assets : " + n);
 	}
 
 	public Portfolio getPortfolio() {

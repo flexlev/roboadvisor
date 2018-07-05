@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.AreaChart?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
@@ -51,32 +48,47 @@
           </textFill>
         </Label>
         <Button fx:id="list_refresh" layoutX="350.0" layoutY="12.0" mnemonicParsing="false" onMouseClicked="#handleList" text="Refresh" />
-        <TableView fx:id="list_history" layoutX="14.0" layoutY="46.0" prefHeight="432.0001220703125" prefWidth="408.0" />
+        <TableView fx:id="list_holdings" layoutX="14.0" layoutY="46.0" prefHeight="432.0001220703125" prefWidth="408.0" />
       </children>
     </AnchorPane>
     <AnchorPane id="topBar" fx:id="settings" layoutX="0.0" layoutY="70.0" prefHeight="492.0" prefWidth="436.0" style="-fx-background-color: #3f3f3f;&#10;">
       <children>
-        <Label layoutX="28.0" layoutY="261.0" prefHeight="20.0" prefWidth="170.0" text="Portfolio Type : " textFill="$x6">
+        <Label layoutX="28.0" layoutY="276.0" prefHeight="21.0" prefWidth="302.0" text="Portfolio Type :  GROWTH PORTFOLIO" textFill="$x6">
           <font>
             <Font name="System Bold" size="15.0" fx:id="x3" />
           </font>
         </Label>
-        <Label font="$x3" layoutX="28.0" layoutY="391.0" prefHeight="20.0" prefWidth="170.0" text="6-Month Sharp Ratio :" textFill="$x6" />
-        <Label font="$x3" layoutX="28.0" layoutY="321.0" prefHeight="20.0" prefWidth="170.0" text="6-Month Return : " textFill="$x6" />
+        <Label font="$x3" layoutX="26.0" layoutY="350.0" prefHeight="21.0" prefWidth="278.0" text="6-Month Annualized Return : 10.4%" textFill="$x6" />
         <Separator layoutX="28.0" layoutY="424.0" prefWidth="373.0" />
         <Button fx:id="reset" layoutX="140.0" layoutY="442.0" mnemonicParsing="false" onMouseClicked="#handleReset" prefWidth="156.0" style="-fx-background-color: #ade6bc;" text="Contact Client Services" />
-        <Label layoutX="124.0" layoutY="14.0" prefHeight="27.0" prefWidth="201.0" text="Portfolio Stats" textFill="$x6">
+        <Label layoutX="153.0" layoutY="14.0" prefHeight="27.0" prefWidth="131.0" text="Portfolio Stats" textFill="$x6">
                <font>
             <Font name="System Bold" size="18.0" fx:id="x1" />
                </font></Label>
-            <AreaChart layoutX="26.0" layoutY="31.0" prefHeight="238.0" prefWidth="344.0">
-              <xAxis>
-                <CategoryAxis side="BOTTOM" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis side="LEFT" />
-              </yAxis>
-            </AreaChart>
+            <Label layoutX="28.0" layoutY="74.0" prefHeight="21.0" prefWidth="302.0" text="Capital Amount : 23 876.00">
+               <textFill>
+                  <Color blue="0.851" green="0.851" red="0.863" fx:id="x61" />
+               </textFill>
+               <font>
+                  <Font name="System Bold" size="15.0" fx:id="x31" />
+               </font>
+            </Label>
+            <Label layoutX="28.0" layoutY="139.0" prefHeight="21.0" prefWidth="302.0" text="USD Amount : 12 836.00">
+               <textFill>
+                  <Color blue="0.851" green="0.851" red="0.863" fx:id="x611" />
+               </textFill>
+               <font>
+                  <Font name="System Bold" size="15.0" fx:id="x311" />
+               </font>
+            </Label>
+            <Label layoutX="28.0" layoutY="204.0" prefHeight="21.0" prefWidth="302.0" text="CAD Amount : 11 040.00">
+               <textFill>
+                  <Color blue="0.851" green="0.851" red="0.863" fx:id="x6111" />
+               </textFill>
+               <font>
+                  <Font name="System Bold" size="15.0" fx:id="x3111" />
+               </font>
+            </Label>
       </children>
     </AnchorPane>
   </children>

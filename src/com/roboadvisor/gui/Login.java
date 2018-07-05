@@ -43,7 +43,6 @@ public class Login implements Initializable{
 	
 	@FXML
 	private void handleLogin( MouseEvent event ) throws IOException {
-		System.out.println("feeffe");
 		 currentEmail = email.getText();//"flev1266@gmail.com"; //email.getText();
 	     currentPassword = password.getText();
 	     
