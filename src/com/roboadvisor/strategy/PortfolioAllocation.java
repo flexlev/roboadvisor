@@ -73,15 +73,15 @@ public class PortfolioAllocation {
 		portfolio1.optimizeWeight();
 		portfolio1.printCSV();
 		
-		Portfolio portfolio2 = new Portfolio(stockAssets,2);
-		portfolio2.populateSeries();
-		portfolio2.optimizeWeight();
-		portfolio2.printCSV();
-		
-		Portfolio portfolio3 = new Portfolio(stockAssets,3);
-		portfolio3.populateSeries();
-		portfolio3.optimizeWeight();
-		portfolio3.printCSV();
+//		Portfolio portfolio2 = new Portfolio(stockAssets,2);
+//		portfolio2.populateSeries();
+//		portfolio2.optimizeWeight();
+//		portfolio2.printCSV();
+//		
+//		Portfolio portfolio3 = new Portfolio(stockAssets,3);
+//		portfolio3.populateSeries();
+//		portfolio3.optimizeWeight();
+//		portfolio3.printCSV();
 	}
 
 	private void removeUndownloadedTickers(Date beg, Date end) {

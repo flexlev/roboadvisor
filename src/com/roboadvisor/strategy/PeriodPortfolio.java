@@ -117,13 +117,14 @@ public class PeriodPortfolio {
 				sum += sigma;
 				
 				double sumWeight = 0;
-				for(int i = 0; i<m-1 ; i++) {
+				for(int i = 0; i<m-2 ; i++) {
 					con[i] = x[i];
 					sumWeight += x[i];
 				}
 				
 				//last 6 ETFs max weight of 20 % of whole portfolio
-				con[m-1] = 0.2 - (x[n-1] + x[n-2] + x[n-3] + x[n-4] + x[n-5] + x[n-6])/sumWeight;
+				con[m-2] = 0.4 - (x[n-1] + x[n-2] + x[n-3] + x[n-4] + x[n-5] + x[n-6])/sumWeight;
+				con[m-1] = (x[n-1] + x[n-2] + x[n-3] + x[n-4] + x[n-5] + x[n-6])/sumWeight-0.4;
 				
 				return sum;
 			}
@@ -174,8 +175,8 @@ public class PeriodPortfolio {
 		}
 		
 		calcfc.setCov(this.cov);
-		this.weights = Cobyla.FindMinimum(calcfc, this.stocks.size(), this.stocks.size()+1, xO, 100000, 100, 1, 10000);
-//		System.out.println(Arrays.toString(this.weights.toArray()));
+		this.weights = Cobyla.FindMinimum(calcfc, this.stocks.size(), this.stocks.size()+2, xO, 100000, 1000, 1, 10000);
+		System.out.println(Arrays.toString(this.weights.toArray()));
 		return setValueThroughDates(initialValue);
 	}
 	

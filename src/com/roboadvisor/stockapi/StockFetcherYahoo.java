@@ -175,9 +175,9 @@ public class StockFetcherYahoo {
 		datesArray = dates.toArray(datesArray);
 		pricesArray = ArrayUtils.toPrimitive(prices.toArray(new Double[prices.size()]));
 		
-//		if(datesArray.length != 782) {
-//			throw new Exception();
-//		}
+		if(datesArray.length != 782) {
+			throw new Exception();
+		}
 		
 		return new Stock(ticker, pricesArray, datesArray);
 	}
