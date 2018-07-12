@@ -70,18 +70,18 @@ public class PortfolioAllocation {
 		
 		Portfolio portfolio1 = new Portfolio(stockAssets,1);
 		portfolio1.populateSeries();
-		portfolio1.optimizeWeight();
+		portfolio1.optimizeWeight(0);
 		portfolio1.printCSV();
 		
-//		Portfolio portfolio2 = new Portfolio(stockAssets,2);
-//		portfolio2.populateSeries();
-//		portfolio2.optimizeWeight();
-//		portfolio2.printCSV();
-//		
-//		Portfolio portfolio3 = new Portfolio(stockAssets,3);
-//		portfolio3.populateSeries();
-//		portfolio3.optimizeWeight();
-//		portfolio3.printCSV();
+		Portfolio portfolio2 = new Portfolio(stockAssets,2);
+		portfolio2.populateSeries();
+		portfolio2.optimizeWeight(1);
+		portfolio2.printCSV();
+		
+		Portfolio portfolio3 = new Portfolio(stockAssets,3);
+		portfolio3.populateSeries();
+		portfolio3.optimizeWeight(2);
+		portfolio3.printCSV();
 	}
 
 	private void removeUndownloadedTickers(Date beg, Date end) {
@@ -162,7 +162,7 @@ public class PortfolioAllocation {
 				if (crumb != null && !crumb.isEmpty()) {
 	                System.out.println(String.format("Downloading data to %s", stock.getSymbol()));
 	                System.out.println("Crumb: " + crumb);
-	                stockFetcherYahoo.downloadData(stock.getSymbol(), 0, System.currentTimeMillis(),"1wk", crumb);
+	                stockFetcherYahoo.downloadData(stock.getSymbol(), 0, System.currentTimeMillis(), "1wk", crumb);
 	            } else {
 	                System.out.println(String.format("Error retreiving data for %s", stock.getSymbol()));
 	            }

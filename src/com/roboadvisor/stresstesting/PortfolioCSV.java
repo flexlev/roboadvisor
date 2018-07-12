@@ -5,11 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import com.roboadvisor.dao.GeneralDaoService;
 import com.roboadvisor.stockapi.Stock;
@@ -27,11 +29,12 @@ public class PortfolioCSV {
 	private static GeneralDaoService generalDaoService;
 
 	public static void main(String[] args) {
-		PortfolioCSV portfolioCSV = new PortfolioCSV("portfolio1.csv");
+		PortfolioCSV portfolioCSV = new PortfolioCSV("portfolio3.csv");
 //		portfolioCSV.printPortfolio();
 		generalDaoService = new GeneralDaoService();
 //		portfolioCSV.saveHoldings(portfolioCSV.portfolio.getPeriodPortfolio().size()-1, "growth");
-		portfolioCSV.countAssets();
+//		portfolioCSV.countAssets();
+		portfolioCSV.printPortfolioValueBySector("portfolio3.csv");
 	}
 
 	public PortfolioCSV(String portfolioCSV) {
@@ -43,6 +46,48 @@ public class PortfolioCSV {
 		this.portfolio.setRebalanceDates(this.portfolio.getRebalanceDates());
 		
 		populatePeriodPortfolio(portfolioCSV);
+	}
+
+	private void printPortfolioValueBySector(String port) {
+		ArrayList<String> listSectors = new ArrayList<String>();
+		double tempSectorValue = 0.0;
+		
+		for(int i=0; i< this.portfolio.getPeriodPortfolio().get(0).getStocks().size(); i++) {
+			if(!listSectors.contains(this.portfolio.getPeriodPortfolio().get(0).getStocks().get(i).getSector()))
+				listSectors.add(this.portfolio.getPeriodPortfolio().get(0).getStocks().get(i).getSector());
+		}
+		
+		java.io.File csv = new java.io.File("valueSectors" + port +".csv");
+	    java.io.PrintWriter outfile = null;
+	    
+	    
+		try {
+			outfile = new java.io.PrintWriter(csv);
+			
+			for(int i=0; i< listSectors.size(); i++) {
+				outfile.write(listSectors.get(i) + ",");
+			}
+		    outfile.write("\n");
+		    
+			for(int i =0; i< this.portfolio.getPeriodPortfolio().size(); i++) {
+				for(int m =0; m<this.portfolio.getPeriodPortfolio().get(i).getValue().size(); m++) {
+					for(int j =0; j <listSectors.size(); j++) {
+						for(int k =0; k<this.portfolio.getPeriodPortfolio().get(i).getStocks().size(); k++) {
+							if(this.portfolio.getPeriodPortfolio().get(i).getStocks().get(k).getSector().equals(listSectors.get(j))) {
+								tempSectorValue += this.portfolio.getPeriodPortfolio().get(i).getWeights().get(k)*this.portfolio.getPeriodPortfolio().get(i).getValue().get(m);
+							}
+						}
+						outfile.write(tempSectorValue + ",");
+						tempSectorValue = 0;
+					}
+					outfile.write("\n");
+				}
+			}
+		} catch (FileNotFoundException e) {}
+		
+
+	    outfile.close();
+		
 	}
 
 	private void populatePeriodPortfolio(String portfolioCSV) {
@@ -71,12 +116,12 @@ public class PortfolioCSV {
 				
 				datesTemp.add(currentDate);
 						
-				if(i != (stringArray.length-2)) {
-					String[] split2 = stringArray[i+2].split(",");
+				if(i != (stringArray.length-3)) {
+					String[] split2 = stringArray[i+3].split(",");
 					nextDate = StockHelper.createDate(split2[0]);
 				}
 				
-				if(currentDate.equals(nextDate) || (i == (stringArray.length-2))) {
+				if(currentDate.equals(nextDate) || (i == (stringArray.length-3))) {
 					for(int j = 2; j<split0.length ; j++) {
 						tickersTemp.add(split0[j].replace("[", "").replace("]", "").replaceAll(" ", ""));
 					}
@@ -97,6 +142,7 @@ public class PortfolioCSV {
 					datesTemp.clear();
 				}
 					
+				i++;
 				i++;
 			}
 		} catch (FileNotFoundException e) {

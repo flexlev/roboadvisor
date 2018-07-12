@@ -236,10 +236,10 @@ public class Portfolio {
 		return dates;
 	}
 
-	public void optimizeWeight() {
+	public void optimizeWeight(int levelRisk) {
 		double initialValue = 1000000;
 		for(int i = 0; i< this.periodPortfolio.size(); i++) {
-			initialValue = this.periodPortfolio.get(i).optimize(initialValue);
+			initialValue = this.periodPortfolio.get(i).optimize(initialValue, levelRisk);
 		}
 	}
 	
@@ -247,6 +247,7 @@ public class Portfolio {
 		double value = 0;
 		Date date = new Date();
 		ArrayList<String> holdings = new ArrayList<String>();
+		ArrayList<String> sectors = new ArrayList<String>();
 		ArrayList<Double> weights = new ArrayList<Double>();
 		
 		java.io.File csv = new java.io.File("portfolio"+ this.varianceTolerance +".csv");
@@ -261,13 +262,21 @@ public class Portfolio {
 				value = this.periodPortfolio.get(i).getValue().get(j);
 				for(int m = 0; m< this.periodPortfolio.get(i).getStocks().size(); m++) {
 					holdings.add(this.periodPortfolio.get(i).getStocks().get(m).getSymbol());
+					sectors.add(this.periodPortfolio.get(i).getStocks().get(m).getSector());
 					weights.add(this.periodPortfolio.get(i).getWeights().get(m));
 				}
-				outfile.write(DateFormatUtils.format(date, "yyyy-MM-dd") + "," + value + "," + Arrays.toString(holdings.toArray()) + "\n" + ",,"+Arrays.toString(weights.toArray()) +"\n");
+				outfile.write(DateFormatUtils.format(date, "yyyy-MM-dd") + "," + value + "," + Arrays.toString(holdings.toArray()) + "\n" + ",,"+Arrays.toString(weights.toArray()) +"\n"+ ",,"+Arrays.toString(sectors.toArray()) +"\n");
 				holdings.clear();
 				weights.clear();
+				sectors.clear();
 			}
 		}
+		
+		outfile.write("\n" + "Fees");
+		for(int i=0; i < this.periodPortfolio.size(); i++) {
+			outfile.write("\n" + this.periodPortfolio.get(i).getFeeCollected());
+		}
+		
 
 	    outfile.close();
 	}

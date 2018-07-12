@@ -108,9 +108,8 @@ public class StockFetcherYahoo {
     public String getCrumb(String symbol) {
         return findCrumb(splitPageData(getPage(symbol)));
     }
-                  
 
-    public void downloadData(String symbol, long startDate, long endDate, String interval, String crumb) {
+    public void downloadData(String symbol, int startDate, long endDate, String interval, String crumb) {
         String filename = String.format("assets/%s.csv", symbol);
         String url = String.format("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=%s&events=history&crumb=%s", symbol, startDate, endDate, interval, crumb);
         HttpGet request = new HttpGet(url);

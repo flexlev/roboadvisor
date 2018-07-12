@@ -46,6 +46,8 @@ public class PeriodPortfolio {
 	private double[] betaEconFactorsUS;
 	private double[] betaEconFactorsCAD;
 	
+	private double feeCollected;
+	
 	public PeriodPortfolio(ArrayList<Stock> stockAssetsCAD, ArrayList<Stock> stockAssetsUS, ArrayList<Stock> mandatoryStockAssets, ArrayList<Date> dates) {
 		this.stockAssetsCAD = stockAssetsCAD;
 		this.stockAssetsUS = stockAssetsUS;
@@ -96,7 +98,7 @@ public class PeriodPortfolio {
         return k;
 	}
 
-	public double optimize(double initialValue) {
+	public double optimize(double initialValue, int levelRisk) {
 		Calcfc calcfc = new Calcfc() {
 			
 			private RealMatrix cov;
@@ -175,9 +177,9 @@ public class PeriodPortfolio {
 		}
 		
 		calcfc.setCov(this.cov);
-		this.weights = Cobyla.FindMinimum(calcfc, this.stocks.size(), this.stocks.size()+2, xO, 100000, 1000, 1, 10000);
+		this.weights = Cobyla.FindMinimum(calcfc, this.stocks.size(), this.stocks.size()+2, xO, 25000, 100, 1, 10000);
 		System.out.println(Arrays.toString(this.weights.toArray()));
-		return setValueThroughDates(initialValue);
+		return setValueThroughDates(initialValue, levelRisk);
 	}
 	
 	private void getNumberOfStocks() {
@@ -186,12 +188,13 @@ public class PeriodPortfolio {
 		}
 	}
 
-	private double setValueThroughDates(double initialValue) {
+	private double setValueThroughDates(double initialValue, int levelRisk) {
 		this.value = new ArrayList<Double>();
 		this.initialValue = initialValue;
 		int index = 0;
 		
 		double initialValueIterative = this.initialValue;
+		double valueBeg = initialValueIterative;
 		ArrayList<Double> stockValue = new ArrayList<Double>();
 		ArrayList<Double> stocksNumber = new ArrayList<Double>();
 		
@@ -215,7 +218,29 @@ public class PeriodPortfolio {
 			System.out.println("Working on : " + dates.get(i));
 		}
 		
-		return initialValueIterative;
+		if(initialValueIterative>valueBeg) {
+			if(levelRisk == 0) {
+				this.feeCollected = (initialValueIterative-valueBeg)*0.015 + initialValueIterative*0.005;
+			}
+			if(levelRisk == 1) {
+				this.feeCollected = (initialValueIterative-valueBeg)*0.03 + initialValueIterative*0.005;
+			}
+			if(levelRisk == 2) {
+				this.feeCollected = (initialValueIterative-valueBeg)*0.045 + initialValueIterative*0.005;
+			}
+		} else {
+			if(levelRisk == 0) {
+				this.feeCollected = initialValueIterative*0.005;
+			}
+			if(levelRisk == 1) {
+				this.feeCollected = initialValueIterative*0.005;
+			}
+			if(levelRisk == 2) {
+				this.feeCollected = initialValueIterative*0.005;
+			}
+		}
+		
+		return initialValueIterative - this.feeCollected;
 		
 	}
 	
@@ -240,7 +265,7 @@ public class PeriodPortfolio {
 		return dotP;
 	}
 	
-	public void fitToEconomicFactors(Date beg, Date end) {
+	public void fitToEconomicFactors(Date beg, Date end, String portfolio) {
 		this.econFactorsUS = new ArrayList<Stock>();
 		this.econFactorsCAD = new ArrayList<Stock>();
 		
@@ -264,9 +289,13 @@ public class PeriodPortfolio {
 		createDateFactors();
 		fitFactorsLoaded();
 		getBetas();
-		createScenarios(0.98, 0.99, 0.99, 1.02, 1.02, 1, "UP");
-		createScenarios(1.02, 1.01, 1.01, 0.98, 0.98, 1, "DOWN");
-		createScenarios(1, 1, 1, 1, 1, 1, "BASE");
+//		createScenarios(0.98, 0.99, 0.99, 1.02, 1.02, 1, "UP"+portfolio);
+//		createScenarios(1.02, 1.01, 1.01, 0.98, 0.98, 1, "DOWN"+portfolio);
+//		createScenarios(1, 1, 1, 1, 1, 1, "BASE"+portfolio);
+		
+		createScenarios(1, 1, 1, 1, 1, 0.98, "UP"+portfolio);
+		createScenarios(1, 1, 1,1 , 1, 1.02, "DOWN"+portfolio);
+		createScenarios(1, 1, 1, 1, 1, 1, "BASE"+portfolio);
 	}
 	
 	private void fitFactorsLoaded() {
@@ -562,6 +591,14 @@ public class PeriodPortfolio {
 
 	public void setTickers(ArrayList<String> tickers) {
 		this.tickers = tickers;
+	}
+
+	public double getFeeCollected() {
+		return feeCollected;
+	}
+
+	public void setFeeCollected(double feeCollected) {
+		this.feeCollected = feeCollected;
 	}
 	
 
